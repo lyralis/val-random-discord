@@ -97,10 +97,10 @@ fn role_display_name(role: Role) -> &'static str {
 
 fn role_color(role: Role) -> serenity::Color {
     match role {
-        Role::Controller => serenity::Color::from_rgb(207, 185, 151),
-        Role::Duelist => serenity::Color::from_rgb(232, 195, 157),
-        Role::Initiator => serenity::Color::from_rgb(197, 217, 180),
-        Role::Sentinel => serenity::Color::from_rgb(138, 197, 180),
+        Role::Controller => serenity::Color::from_rgb(215, 130, 55),
+        Role::Duelist => serenity::Color::from_rgb(232, 80, 90),
+        Role::Initiator => serenity::Color::from_rgb(52, 165, 130),
+        Role::Sentinel => serenity::Color::from_rgb(68, 150, 200),
     }
 }
 

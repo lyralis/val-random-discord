@@ -1,10 +1,15 @@
+use std::collections::HashMap;
+
 use anyhow::Context as _;
 use poise::serenity_prelude as serenity;
 
 mod agent;
 mod commands;
 
-struct Data {}
+pub struct Data {
+    /// コマンド名 → コマンドID のマッピング (スラッシュコマンドメンション用)
+    pub command_ids: HashMap<String, serenity::CommandId>,
+}
 
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -20,7 +25,11 @@ async fn main() -> anyhow::Result<()> {
 
     let framework = poise::Framework::<Data, Error>::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![commands::random::random()],
+            commands: vec![
+                commands::help::help(),
+                commands::agents::agents(),
+                commands::random::random(),
+            ],
             ..Default::default()
         })
         .setup(|ctx, ready, framework| {
@@ -28,19 +37,27 @@ async fn main() -> anyhow::Result<()> {
                 tracing::info!("Logged in as {}", ready.user.name);
 
                 let commands_builder = create_commands(framework.options());
-                match std::env::var("DISCORD_GUILD_ID") {
+                let registered = match std::env::var("DISCORD_GUILD_ID") {
                     Ok(guild_id) => {
                         let guild_id = serenity::GuildId::new(guild_id.parse()?);
-                        guild_id.set_commands(ctx, commands_builder).await?;
+                        let cmds = guild_id.set_commands(ctx, commands_builder).await?;
                         tracing::info!("Registered commands in guild {}", guild_id);
+                        cmds
                     }
                     Err(_) => {
-                        serenity::Command::set_global_commands(ctx, commands_builder).await?;
+                        let cmds =
+                            serenity::Command::set_global_commands(ctx, commands_builder).await?;
                         tracing::info!("Registered commands globally");
+                        cmds
                     }
-                }
+                };
 
-                Ok(Data {})
+                let command_ids: HashMap<String, serenity::CommandId> = registered
+                    .into_iter()
+                    .map(|cmd| (cmd.name, cmd.id))
+                    .collect();
+
+                Ok(Data { command_ids })
             })
         })
         .build();

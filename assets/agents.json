@@ -1,6 +1,8 @@
-[
-  {
-    "name": "Astra",
+{
+  "patch": "12.05",
+  "agents": [
+    {
+      "name": "Astra",
     "id": "astra",
     "uuid": "41fb69c1-4189-7b37-f117-bcaf1e96f1bf",
     "role": "controller"
@@ -172,5 +174,6 @@
     "id": "yoru",
     "uuid": "7f94d92c-4234-0a36-9646-3a87eb8b5c89",
     "role": "duelist"
-  }
-]
+    }
+  ]
+}
