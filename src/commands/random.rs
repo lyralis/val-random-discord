@@ -1,7 +1,7 @@
 use crate::agent::{self, Agent, Role};
 use crate::{Context, Error};
-use poise::serenity_prelude as serenity;
 use poise::CreateReply;
+use poise::serenity_prelude as serenity;
 use std::time::Duration;
 
 /// VALORANT エージェントをランダムに抽選する
@@ -154,8 +154,7 @@ async fn single(
             .create_response(
                 ctx.serenity_context(),
                 serenity::CreateInteractionResponse::UpdateMessage(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(new_embed),
+                    serenity::CreateInteractionResponseMessage::new().embed(new_embed),
                 ),
             )
             .await?;
@@ -218,8 +217,7 @@ async fn multi(
             .create_response(
                 ctx.serenity_context(),
                 serenity::CreateInteractionResponse::UpdateMessage(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(new_embed),
+                    serenity::CreateInteractionResponseMessage::new().embed(new_embed),
                 ),
             )
             .await?;

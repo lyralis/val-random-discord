@@ -2,7 +2,8 @@ use rand::seq::SliceRandom;
 use std::sync::LazyLock;
 
 static AGENTS: LazyLock<Vec<Agent>> = LazyLock::new(|| {
-    serde_json::from_str(include_str!("../assets/agents.json")).expect("failed to parse agents.json")
+    serde_json::from_str(include_str!("../assets/agents.json"))
+        .expect("failed to parse agents.json")
 });
 
 #[derive(Debug, Clone, serde::Deserialize)]
