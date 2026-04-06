@@ -27,15 +27,15 @@ async fn main() -> anyhow::Result<()> {
             Box::pin(async move {
                 tracing::info!("Logged in as {}", ready.user.name);
 
-                let commands = &framework.options().commands;
+                let commands_builder = create_commands(framework.options());
                 match std::env::var("DISCORD_GUILD_ID") {
                     Ok(guild_id) => {
                         let guild_id = serenity::GuildId::new(guild_id.parse()?);
-                        poise::builtins::register_in_guild(ctx, commands, guild_id).await?;
+                        guild_id.set_commands(ctx, commands_builder).await?;
                         tracing::info!("Registered commands in guild {}", guild_id);
                     }
                     Err(_) => {
-                        poise::builtins::register_globally(ctx, commands).await?;
+                        serenity::Command::set_global_commands(ctx, commands_builder).await?;
                         tracing::info!("Registered commands globally");
                     }
                 }
@@ -52,4 +52,28 @@ async fn main() -> anyhow::Result<()> {
     client.start().await?;
 
     Ok(())
+}
+
+fn create_commands(options: &poise::FrameworkOptions<Data, Error>) -> Vec<serenity::CreateCommand> {
+    let integration_types = vec![
+        serenity::InstallationContext::Guild,
+        serenity::InstallationContext::User,
+    ];
+    let contexts = vec![
+        serenity::InteractionContext::Guild,
+        serenity::InteractionContext::BotDm,
+        serenity::InteractionContext::PrivateChannel,
+    ];
+
+    options
+        .commands
+        .iter()
+        .filter_map(|cmd| {
+            cmd.create_as_slash_command().map(|builder| {
+                builder
+                    .integration_types(integration_types.clone())
+                    .contexts(contexts.clone())
+            })
+        })
+        .collect()
 }
