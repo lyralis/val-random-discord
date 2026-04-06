@@ -1,7 +1,13 @@
 use rand::seq::SliceRandom;
 use std::sync::LazyLock;
 
-static AGENTS: LazyLock<Vec<Agent>> = LazyLock::new(|| {
+#[derive(Debug, Clone, serde::Deserialize)]
+struct AgentData {
+    pub patch: String,
+    pub agents: Vec<Agent>,
+}
+
+static AGENT_DATA: LazyLock<AgentData> = LazyLock::new(|| {
     serde_json::from_str(include_str!("../assets/agents.json"))
         .expect("failed to parse agents.json")
 });
@@ -36,12 +42,21 @@ pub enum Role {
     Sentinel,
 }
 
+pub fn patch() -> &'static str {
+    &AGENT_DATA.patch
+}
+
+pub fn all_agents() -> &'static [Agent] {
+    &AGENT_DATA.agents
+}
+
 pub fn agent_names() -> Vec<String> {
-    AGENTS.iter().map(|a| a.name.clone()).collect()
+    AGENT_DATA.agents.iter().map(|a| a.name.clone()).collect()
 }
 
 pub fn filter_agents(role: Option<Role>, ignore: &[String]) -> Vec<&'static Agent> {
-    AGENTS
+    AGENT_DATA
+        .agents
         .iter()
         .filter(|a| role.is_none_or(|r| a.role == r))
         .filter(|a| !ignore.iter().any(|name| a.name.eq_ignore_ascii_case(name)))
